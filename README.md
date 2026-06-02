@@ -173,7 +173,7 @@ Compression Ratio: 39.04%
 
 ## Screenshots to Add
 
-```text
+
 # Screenshots
 
 ## Dashboard Home
