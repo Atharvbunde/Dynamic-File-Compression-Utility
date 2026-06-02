@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic File Compression Utility</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <section class="hero">
+            <div>
+                <p class="tag">DSA Project Dashboard</p>
+                <h1>Dynamic File Compression Utility</h1>
+                <p class="subtitle">
+                    Compress and decompress files using Huffman Coding for small files
+                    and safe streaming compression for large files.
+                </p>
+            </div>
+            <div class="card mini">
+                <h3>Small File Mode</h3>
+                <p>Huffman Coding</p>
+                <h3>Large File Mode</h3>
+                <p>Streaming GZIP</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Upload File</h2>
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <input type="file" name="file" required>
+                <div class="actions">
+                    <button name="action" value="compress">Compress Only</button>
+                    <button name="action" value="full" class="secondary">Compress + Decompress + Verify</button>
+                </div>
+            </form>
+        </section>
+
+        {% if result %}
+        <section class="grid">
+            <div class="stat">
+                <span>Mode</span>
+                <strong>{{ result.mode }}</strong>
+            </div>
+            <div class="stat">
+                <span>Original Size</span>
+                <strong>{{ result.original_size_bytes }} bytes</strong>
+            </div>
+            <div class="stat">
+                <span>Compressed Size</span>
+                <strong>{{ result.compressed_size_bytes }} bytes</strong>
+            </div>
+            <div class="stat">
+                <span>Compression Saved</span>
+                <strong>{{ result.compression_ratio_percent }}%</strong>
+            </div>
+            <div class="stat">
+                <span>Unique Characters</span>
+                <strong>{{ result.unique_characters }}</strong>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Output Files</h2>
+            <div class="download-row">
+                <a href="{{ url_for('download', folder='compressed', filename=result.compressed_download) }}">Download Compressed File</a>
+                <a href="{{ url_for('download', folder='outputs', filename=result.metadata_download) }}">Download Metadata JSON</a>
+                {% if result.decompressed_download %}
+                <a href="{{ url_for('download', folder='decompressed', filename=result.decompressed_download) }}">Download Decompressed File</a>
+                {% endif %}
+            </div>
+
+            {% if result.verified is defined %}
+            <p class="verify">
+                Verification:
+                {% if result.verified %}
+                    ✅ Original and decompressed files matched
+                {% else %}
+                    ❌ Files did not match
+                {% endif %}
+            </p>
+            {% endif %}
+        </section>
+
+        {% if result.frequency %}
+        <section class="card">
+            <h2>Frequency Table</h2>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Character</th><th>Frequency</th><th>Huffman Code</th></tr>
+                    {% for char, freq in result.frequency.items() %}
+                    <tr>
+                        <td>
+                            {% if char == ' ' %}[space]
+                            {% elif char == '\n' %}[newline]
+                            {% else %}{{ char }}
+                            {% endif %}
+                        </td>
+                        <td>{{ freq }}</td>
+                        <td>{{ result.codes[char] }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </section>
+        {% else %}
+        <section class="card">
+            <h2>Large File Mode</h2>
+            <p>This file used streaming GZIP compression because it is too large for educational Huffman mode.</p>
+            <p>For DSA demonstration, use files below 50 MB. For real large files, this streaming mode is safer.</p>
+        </section>
+        {% endif %}
+        {% endif %}
+
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-card">
+                <div class="orbit-loader">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <div class="core">DFC</div>
+                </div>
+                <h2>Processing Your File</h2>
+                <p>Compression engine is scanning, encoding, and preparing output files...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="loading-steps">
+                    <span>Upload</span>
+                    <span>Scan</span>
+                    <span>Compress</span>
+                    <span>Save</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const uploadForm = document.getElementById("uploadForm");
+        const loadingScreen = document.getElementById("loadingScreen");
+
+        if (uploadForm) {
+            uploadForm.addEventListener("submit", function () {
+                loadingScreen.style.display = "flex";
+            });
+        }
+    </script>
+</body>
+</html>

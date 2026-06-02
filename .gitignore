@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+compressed_files/*.huff
+decompressed_files/*.txt
+outputs/*.json
+temp_uploads/
